@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
+import { updateProfileField } from '../lib/userProfile'
 
 const PROFS = [
     { emoji: '🎓', name: 'Student', hint: 'School, college, university' },
@@ -53,7 +54,11 @@ export default function ProfessionSelect() {
             </div>
 
             <div style={s.footer}>
-                <button style={s.btn} onClick={() => navigate('/dashboard')}>Enter my CareNest →</button>
+                <button style={s.btn} onClick={async () => {
+                    // Save professions as comma-separated string
+                    await updateProfileField('profession', professions.join(', '))
+                    navigate('/dashboard')
+                }}>Enter my CareNest →</button>
             </div>
         </div>
     )

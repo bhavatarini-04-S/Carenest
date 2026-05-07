@@ -1,0 +1,109 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              🔓 ENABLE ANONYMOUS SIGN-IN - STEP BY STEP 🔓                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Follow these exact steps:
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: Open Supabase Dashboard                                             │
+│                                                                              │
+│ 1. Open your browser                                                         │
+│ 2. Go to: https://supabase.com/dashboard                                    │
+│ 3. Log in if needed                                                          │
+│ 4. Click on your "CareNest" project                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: Navigate to Authentication                                          │
+│                                                                              │
+│ 1. Look at the LEFT SIDEBAR                                                  │
+│ 2. Find and click "Authentication" (🔐 icon)                                 │
+│ 3. You'll see several tabs at the top                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: Go to Providers Tab                                                 │
+│                                                                              │
+│ 1. Click the "Providers" tab (at the top)                                    │
+│ 2. You'll see a list of authentication providers                             │
+│    (Email, Google, GitHub, etc.)                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 4: Find Anonymous Sign-ins                                             │
+│                                                                              │
+│ 1. SCROLL DOWN on the Providers page                                         │
+│ 2. Look for a section called "Anonymous Sign-ins"                            │
+│    (It's usually near the bottom)                                            │
+│ 3. You'll see a toggle switch that's currently OFF (gray)                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 5: Enable Anonymous Sign-ins                                           │
+│                                                                              │
+│ 1. Click the toggle switch to turn it ON                                     │
+│    (It should turn green/blue)                                               │
+│ 2. A "Save" button should appear                                             │
+│ 3. Click the "Save" button                                                   │
+│ 4. Wait for confirmation message                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 6: Verify It's Enabled                                                 │
+│                                                                              │
+│ 1. The toggle should now be ON (green/blue)                                  │
+│ 2. You should see "Anonymous sign-ins enabled" or similar message            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         ✅ THAT'S IT! YOU'RE DONE! ✅                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🧪 TEST IT NOW:
+
+1. Go to your app: http://localhost:5173/
+2. Click "👤 Continue anonymously" button
+3. It should work now! ✅
+
+If you see any errors, check:
+  ❌ "Anonymous sign-ins are disabled" → Go back and verify toggle is ON
+  ❌ Other errors → Check browser console (F12)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📸 VISUAL REFERENCE:
+
+Path in Supabase:
+  Dashboard
+    └─ [Your Project Name]
+        └─ Authentication (left sidebar) 🔐
+            └─ Providers (top tab)
+                └─ [Scroll down]
+                    └─ Anonymous Sign-ins
+                        └─ [Toggle ON] ✅
+                            └─ [Save]
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💡 OPTIONAL SETTINGS (After enabling):
+
+You can also configure:
+  • Session duration (how long anonymous sessions last)
+  • Auto-cleanup (delete old anonymous users automatically)
+
+These are optional - the defaults work fine!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎉 WHAT HAPPENS AFTER ENABLING:
+
+✅ Users can click "Continue anonymously"
+✅ They get a temporary session ID
+✅ No email or password required
+✅ Their data is still saved (with is_anonymous = true)
+✅ They can use all app features
+✅ Can convert to full account later (if you add that feature)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Need help? Let me know if you get stuck on any step!

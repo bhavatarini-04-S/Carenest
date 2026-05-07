@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
+import { updateProfileField } from '../lib/userProfile'
 
 const CARDS = [
     { id: '18-25', emoji: '🌱', range: '18–25', tagline: 'Figuring it all out', desc: 'Navigating identity, academics, first jobs, social anxiety, and the overwhelming feeling that everyone else has it together — except you.', tags: ['Academic stress', 'Identity', 'Social anxiety'], bg: 'linear-gradient(145deg,#EEF2FF,#E0E5F8)', border: '#C5CCF0', color: '#4A57A0', tagBg: 'rgba(74,87,160,.12)' },
@@ -52,7 +53,12 @@ export default function AgeSelect() {
             <div style={s.footer}>
                 <button
                     style={{ ...s.btn, opacity: selected ? 1 : .4, pointerEvents: selected ? 'all' : 'none' }}
-                    onClick={() => navigate('/onboarding/profession')}
+                    onClick={async () => {
+                        if (selected) {
+                            await updateProfileField('age_group', selected)
+                            navigate('/onboarding/profession')
+                        }
+                    }}
                 >
                     Continue to next step →
                 </button>

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import useStore from '../store/useStore'
+import { saveUserProfile, trackUserSession } from '../lib/userProfile'
 
 export default function Auth() {
     const navigate = useNavigate()
@@ -22,10 +23,22 @@ export default function Auth() {
                 const { data, error } = await supabase.auth.signUp({ email, password })
                 if (error) throw error
                 setUser(data.user)
+                
+                // Save initial profile
+                await saveUserProfile({
+                    name: name || null,
+                    is_anonymous: false
+                })
+                
+                // Track signup session
+                await trackUserSession('signup')
             } else {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password })
                 if (error) throw error
                 setUser(data.user)
+                
+                // Track login session
+                await trackUserSession('login')
             }
             navigate('/onboarding/age')
         } catch (e) {
@@ -44,6 +57,15 @@ export default function Auth() {
             const { data, error } = await supabase.auth.signInAnonymously()
             if (error) throw error
             setUser(data.user); setAnonymous(true)
+            
+            // Save anonymous profile
+            await saveUserProfile({
+                is_anonymous: true
+            })
+            
+            // Track anonymous session
+            await trackUserSession('anonymous')
+            
             navigate('/onboarding/age')
         } catch (e) {
             if (e.message?.toLowerCase().includes('rate limit') || e.status === 429) {
