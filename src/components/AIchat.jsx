@@ -97,46 +97,9 @@ function CrisisBanner({ level, onDismiss }) {
 export default function AIChat1825() {
     const { ageCategory, professions, mood, language, setLanguage } = useStore()
 
-    // ── Chat Mode (18-25 only add-ons) ──
-    const [chatMode, setChatMode] = useState('venting')
-
-    const MODES = [
-        { id: 'venting',    label: 'Venting',     icon: '💭', color: '#4A57A0', bg: '#EEF2FF', desc: 'Share your feelings — I\'m listening' },
-        { id: 'rant',       label: 'Rant Mode',   icon: '🤣', color: '#DC2626', bg: '#FEF2F2', desc: 'Just let it all out. I won\'t interrupt.' },
-        { id: 'advice',     label: 'Advice',      icon: '🎯', color: '#059669', bg: '#ECFDF5', desc: 'Get practical, structured solutions' },
-        { id: 'motivation', label: 'Motivation',  icon: '⚡',  color: '#D97706', bg: '#FFFBEB', desc: 'Get a push forward' },
-    ]
-
-    const WELCOME_MSGS = {
-        venting:    "Hey, I'm really glad you're here 💙 How are you feeling right now — honestly? There's no right or wrong answer. Just start wherever feels comfortable.",
-        rant:       "Rant Mode activated 🤣 I'm not going to give you advice or ask a million questions — I'm just here to listen. Go off. I got you.",
-        advice:     "Advice Mode 🎯 Let's figure this out together. Tell me what's going on and I'll give you some real, specific things you can actually do about it.",
-        motivation: "Let's go ⚡ Tell me what you're up against — I'll help you find the energy to move through it.",
-    }
-
-    const PLACEHOLDERS = {
-        venting:    "Share what's on your mind…",
-        rant:       "Let it all out. No filter needed 🤣",
-        advice:     "Describe what's going on — I'll help you figure it out…",
-        motivation: "Tell me what you're facing — let's tackle it together ⚡",
-    }
-
-    function switchMode(newMode) {
-        if (newMode === chatMode) return
-        setChatMode(newMode)
-        const modeInfo = MODES.find(m => m.id === newMode)
-        // Insert a system-like hint message
-        setMessages(prev => [...prev, {
-            role: 'assistant',
-            content: WELCOME_MSGS[newMode],
-            sentiment: null,
-            isModeSwitchMsg: true,
-        }])
-    }
-
     const [messages, setMessages] = useState([{
         role: 'assistant',
-        content: WELCOME_MSGS['venting'],
+        content: "Hey, I'm really glad you're here. 💙 How are you feeling right now — honestly? There's no right or wrong answer. You can start wherever feels comfortable.",
         sentiment: null,
     }])
     const [input, setInput] = useState('')
@@ -251,7 +214,7 @@ export default function AIChat1825() {
         try {
             const { reply, sentiment: responseSentiment } = await sendMessage(
                 updated.map(m => ({ role: m.role, content: m.content })),
-                ageCategory, professions, mood, text, language, chatMode
+                ageCategory, professions, mood, text, language
             )
             setMessages(prev => [...prev, { role: 'assistant', content: reply, sentiment: responseSentiment }])
             
@@ -349,7 +312,7 @@ export default function AIChat1825() {
                             <div style={s.headerName}>CareNest AI</div>
                             <div style={s.headerStatus}>
                                 <span style={s.statusDot} />
-                                Personal wellness support · 18–25
+                                Personal wellness support · 25–35
                             </div>
                         </div>
                         {panelSentiment && (
@@ -378,59 +341,16 @@ export default function AIChat1825() {
                             <option value="kn">🇮🇳 ಕನ್ನಡ</option>
                             <option value="ml">🇮🇳 മലയാളം</option>
                             <option value="pa">🇮🇳 ਪੰਜਾਬੀ</option>
-                            <option value="or">🇮🇳 ଓଡ଼િଆ</option>
+                            <option value="or">🇮🇳 ଓଡ଼ିଆ</option>
                             <option value="as">🇮🇳 অসমীয়া</option>
                         </select>
                     </div>
-
-                    {/* ── Mode Selector (18-25 only) ── */}
-                    {ageCategory === '18-25' && (
-                        <div style={s.modeBar}>
-                            {MODES.map(m => {
-                                const active = chatMode === m.id
-                                return (
-                                    <button
-                                        key={m.id}
-                                        style={{
-                                            ...s.modeBtn,
-                                            background: active ? m.color : 'transparent',
-                                            color: active ? 'white' : '#64748B',
-                                            border: `1.5px solid ${active ? m.color : '#E5E7EB'}`,
-                                            boxShadow: active ? `0 4px 14px ${m.color}40` : 'none',
-                                            transform: active ? 'scale(1.04)' : 'scale(1)',
-                                        }}
-                                        onClick={() => switchMode(m.id)}
-                                        title={m.desc}
-                                    >
-                                        <span style={{ fontSize: 15 }}>{m.icon}</span>
-                                        <span style={{ fontSize: 12, fontWeight: 700 }}>{m.label}</span>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    )}
-
-                    {/* Rant Mode listening indicator */}
-                    {chatMode === 'rant' && (
-                        <div style={s.rantBanner}>
-                            <span style={s.rantPulse}>👂</span>
-                            <span>I'm just <strong>listening</strong>. No advice, no questions — just me, nodding along.</span>
-                        </div>
-                    )}
-
-                    {/* Advice mode context bar */}
-                    {chatMode === 'advice' && (
-                        <div style={s.adviceBanner}>
-                            <span style={{ fontSize: 14 }}>🎯</span>
-                            <span>Advice Mode — tell me what's going on and I'll give you real, actionable steps.</span>
-                        </div>
-                    )}
 
                     {/* Messages */}
                     <div style={s.messages}>
                         {messages.map((m, i) => (
                             <div key={i} style={{ ...s.msgRow, ...(m.role === 'user' ? s.msgRowUser : {}) }}>
-                                {m.role === 'assistant' && <div style={{ ...s.aiAvatar, ...(m.isModeSwitchMsg ? s.aiAvatarMode : {}) }}>{m.isModeSwitchMsg ? MODES.find(md => chatMode === md.id)?.icon || '🌿' : '🌿'}</div>}
+                                {m.role === 'assistant' && <div style={s.aiAvatar}>🌿</div>}
                                 <div style={{ maxWidth: '72%' }}>
                                     <div style={{ ...s.bubble, ...(m.role === 'user' ? s.bubbleUser : s.bubbleAI) }}>
                                         {m.content}
@@ -476,7 +396,7 @@ export default function AIChat1825() {
                     <div style={s.inputArea}>
                         <textarea
                             style={s.input}
-                            placeholder={PLACEHOLDERS[chatMode] || "Share what's on your mind..."}
+                            placeholder="Share what's on your mind... (or use voice 🎤)"
                             value={input}
                             onChange={handleInput}
                             onKeyDown={handleKey}
@@ -528,8 +448,8 @@ export default function AIChat1825() {
                     </div>
                 </div>
 
-                {/* Right: Bayesian Panel — dimmed in Rant Mode */}
-                <div style={{ ...s.bayesCol, opacity: chatMode === 'rant' ? 0.35 : 1, transition: 'opacity .4s ease', pointerEvents: chatMode === 'rant' ? 'none' : 'auto' }}>
+                {/* Right: Bayesian Panel */}
+                <div style={s.bayesCol}>
                     <BayesianSentimentPanel sentiment={panelSentiment} />
                 </div>
             </div>
@@ -538,20 +458,6 @@ export default function AIChat1825() {
 }
 
 const s = {
-    // Mode selector bar
-    modeBar: { display: 'flex', gap: 8, padding: '10px 16px', background: 'white', borderBottom: '1px solid var(--cream-dark)', flexShrink: 0, flexWrap: 'wrap' },
-    modeBtn: { display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all .2s ease', flexShrink: 0 },
-
-    // Rant mode banner
-    rantBanner: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', background: 'linear-gradient(135deg, #FEF2F2, #FEE2E2)', borderBottom: '1px solid #FECACA', fontSize: 12, color: '#7F1D1D', flexShrink: 0 },
-    rantPulse: { fontSize: 18, animation: 'pulse 2s ease-in-out infinite' },
-
-    // Advice mode banner
-    adviceBanner: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 18px', background: 'linear-gradient(135deg, #ECFDF5, #D1FAE5)', borderBottom: '1px solid #A7F3D0', fontSize: 12, color: '#064E3B', flexShrink: 0 },
-
-    // Mode switch message avatar variant
-    aiAvatarMode: { background: 'linear-gradient(135deg, #FDE68A, #F59E0B)', fontSize: 18 },
-
     root: { display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, height: '100%', minHeight: 0 },
     chatCol: { display: 'flex', flexDirection: 'column', borderRadius: 20, border: '1.5px solid var(--cream-dark)', overflow: 'hidden', minHeight: 0 },
     bayesCol: { overflowY: 'auto', minHeight: 0 },
