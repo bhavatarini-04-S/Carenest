@@ -391,58 +391,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-// ── Chat Mode Instructions ─────────────────────────────────────────────────────
-// Each mode fundamentally changes AI personality, verbosity and strategy.
-// All modes still honour crisis detection — safety overrides mode.
-const CHAT_MODE_INSTRUCTIONS = {
-    rant: `
-CHAT MODE: RANT MODE 🤬 — The user needs to vent without interruption. Be their silent, nodding best friend.
-STRICT RULES:
-- NEVER give advice, tips, or solutions — not even subtle ones.
-- NEVER ask deep follow-up questions. At most ONE short warm acknowledgement.
-- Just validate and reflect back their emotion. Mirror their energy.
-- Use casual, real language: "ugh that's SO frustrating", "that's genuinely a lot", "I'd be furious too tbh", "that sounds exhausting".
-- Keep responses SHORT (under 50 words). They're ranting — they don't want to read an essay.
-- Sound like a friend who's nodding intensely while they talk.
-- EXCEPTION: Crisis signals always override rant mode. If detected, gently break mode and provide warmth + helplines.`,
-
-    venting: `
-CHAT MODE: VENTING MODE 💭 — The user wants to share feelings and feel genuinely understood.
-- ALWAYS lead with empathy. Validate before anything else.
-- Reflect back what they said so they know you actually heard them.
-- Ask one gentle, open follow-up question to help them process.
-- Occasionally offer a normalising perspective — never lecture.
-- Tone: warm, casual, late-night-friend-call energy.
-- Under 100 words per response.`,
-
-    advice: `
-CHAT MODE: ADVICE MODE 🎯 — The user has asked for structured, practical solutions. They want a smart friend who's been there.
-- Empathy first (ONE sentence only), then jump into solutions.
-- Give 2–3 clear, specific, concrete steps they can start TODAY — no vague platitudes.
-- Use numbered structure for multiple steps.
-- Be direct and friendly. Skip the therapy-speak.
-- Use the Bayesian cognitive state to tailor advice:
-  * If cognitiveState = 'overwhelmed': step 1 should be a tiny easy win to break paralysis.
-  * If socialState = 'isolated': at least one step involves human connection.
-  * If emotionalState = 'anxious': include a grounding/regulation action.
-- End with one short punchy line of belief in them. No question needed.`,
-
-    motivation: `
-CHAT MODE: MOTIVATION MODE ⚡ — The user needs energy, belief, and a push forward.
-- Acknowledge the difficulty in ONE punchy sentence. Do NOT dwell on it.
-- Then shift energy fully forward. Be real, not fake-hype.
-- Short sentences. Active verbs. Momentum.
-- Reference their specific situation — make it feel personal, not generic.
-- Use Bayesian context: if distressScore > 6, acknowledge the weight before hype. If positive, amplify it.
-- End with ONE specific, doable challenge for today — make it feel exciting, not scary.
-- Think: best friend who genuinely believes in you and refuses to let you spiral.`,
-}
-
-export function buildSystemPrompt(ageCategory, professions, mood, sentimentContext, language = 'en', chatMode = 'venting') {
+export function buildSystemPrompt(ageCategory, professions, mood, sentimentContext, language = 'en') {
     const moodText = mood ? `Their current mood score is ${mood}/5.` : ''
     const profText = professions?.length ? professions.join(', ') : 'unknown'
     const sentimentText = sentimentContext
-        ? `\nBAYESIAN ANALYSIS: Emotional state [${sentimentContext.emotionalState}] at ${sentimentContext.confidence}% confidence. Distress score: ${sentimentContext.distressScore}/10. Cognitive load: ${sentimentContext.cognitiveState}. Social context: ${sentimentContext.socialState}. Use this to calibrate your tone, depth, and the type of support offered.${sentimentContext.crisisAlert ? ' ⚠️ CRISIS ALERT ACTIVE — override all modes, provide immediate warmth and helplines.' : ''}`
+        ? `\nREAL-TIME SENTIMENT: The Bayesian network has detected [${sentimentContext.emotionalState}] emotional state with ${sentimentContext.confidence}% confidence. Distress score: ${sentimentContext.distressScore}/10. Cognitive load: ${sentimentContext.cognitiveState}. Social context: ${sentimentContext.socialState}.
+Tailor your response depth and tone accordingly. ${sentimentContext.crisisAlert ? 'CRISIS ALERT: Provide crisis resources immediately.' : ''}`
         : ''
 
     // Language-specific instructions
@@ -462,31 +416,30 @@ export function buildSystemPrompt(ageCategory, professions, mood, sentimentConte
     }
 
     const langInstruction = languageInstructions[language] || ''
-    const modeInstruction = CHAT_MODE_INSTRUCTIONS[chatMode] || CHAT_MODE_INSTRUCTIONS.venting
 
     const toneMap = {
-        '18-25': 'You talk like a real friend — casual, warm, a little informal. No therapist-speak. Acknowledge academic stress, identity, FOMO, social anxiety. Never preachy.',
+        '18-25': 'Casual, validating, peer-like. Use gentle warmth. Acknowledge academic stress, identity, social anxiety. Avoid being preachy.',
         '25-35': 'Empathetic and practical. Acknowledge stress without dismissing it. Reference work-life balance and relationships.',
         '35-45': 'Warm and grounded. Honour their experience and wisdom. Address family stress, mid-life transitions.',
         '45+': 'Respectful, calm, unhurried. Use clear simple language. Address loneliness, grief, health anxiety.',
     }
 
-    return `You are CareNest — a Bayesian-powered AI support companion for the ${ageCategory || '18-25'} age group. You talk like a real friend, NOT a therapist.
+    return `You are CareNest, a compassionate AI mental health support companion for the ${ageCategory || '18-25'} age group.
 User profession: ${profText}. ${moodText}${sentimentText}${langInstruction}
 
-Base tone: ${toneMap[ageCategory] || toneMap['18-25']}
-${modeInstruction}
+Tone: ${toneMap[ageCategory] || toneMap['18-25']}
 
-Universal rules (never violate):
-1. Never diagnose, prescribe medication, or act like a therapist.
-2. CRISIS OVERRIDE: If crisis signals detected — respond with warmth, validate immediately, and ALWAYS include iCall (9152987821) and Vandrevala Foundation (1860-2662-345).
-3. Match emotional register to Bayesian distress score — never be artificially cheerful if distress is high.
-4. Sound human. Use contractions, casual phrasing. Avoid bullet-point therapy lists unless in Advice Mode.
-5. You are a companion. The goal is for them to feel genuinely heard and less alone.`
+Strict rules:
+1. Never diagnose or prescribe medication.
+2. If crisis is detected or user expresses suicidal ideation: respond with deep warmth, validate, and ALWAYS include iCall (9152987821) and Vandrevala Foundation (1860-2662-345).
+3. Keep responses concise — under 120 words unless user asks for more.
+4. Always end with ONE gentle open question.
+5. You are a support companion, not a therapist.
+6. Match your emotional register to the detected sentiment — don't be artificially cheerful if distress is high.`
 }
 
-export async function sendMessage(messages, ageCategory, professions, mood, latestUserText, language = 'en', chatMode = 'venting') {
-    // Run Bayesian network analysis on the latest user message
+export async function sendMessage(messages, ageCategory, professions, mood, latestUserText, language = 'en') {
+    // Run Bayesian analysis on the latest user message
     const sentimentContext = latestUserText ? analyzeSentiment(latestUserText) : null
 
     if (!API_KEY) throw new Error("Gemini API key is missing. Please add VITE_GEMINI_API_KEY to your .env file.");
@@ -502,7 +455,7 @@ export async function sendMessage(messages, ageCategory, professions, mood, late
     try {
         const result = await model.generateContent({
             contents: contents,
-            systemInstruction: buildSystemPrompt(ageCategory, professions, mood, sentimentContext, language, chatMode)
+            systemInstruction: buildSystemPrompt(ageCategory, professions, mood, sentimentContext, language)
         });
         const reply = result.response.text();
         return { reply, sentiment: sentimentContext };
@@ -515,7 +468,7 @@ export async function sendMessage(messages, ageCategory, professions, mood, late
 // Keep backward-compatible export name
 export const sendGroqMessage = (messages, ageCategory, professions, mood) => {
     const lastUser = [...messages].reverse().find(m => m.role === 'user')
-    return sendMessage(messages, ageCategory, professions, mood, lastUser?.content, 'en', 'venting')
+    return sendMessage(messages, ageCategory, professions, mood, lastUser?.content, 'en')
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

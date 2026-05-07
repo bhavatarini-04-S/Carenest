@@ -4,7 +4,6 @@ import useStore from '../store/useStore'
 import YoungAdultDashboard from './YoungAdultDashboard'
 import ProfessionalDashboard25_35 from './ProfessionalDashboard25_35'
 import ProfessionalDashboard35_45 from './ProfessionalDashboard35_45'
-import SeniorDashboard45Plus from './SeniorDashboard45Plus'
 
 const MOODS = ['😔', '😕', '😐', '🙂', '😊']
 const MOOD_LABELS = ['Struggling', 'Low', 'Okay', 'Good', 'Great']
@@ -207,6 +206,5 @@ export default function Dashboard() {
     if (ageCategory === '18-25') return <YoungAdultDashboard />
     if (ageCategory === '25-35') return <ProfessionalDashboard25_35 />
     if (ageCategory === '35-45') return <ProfessionalDashboard35_45 />
-    if (ageCategory === '45+') return <SeniorDashboard45Plus />
     return <DefaultDashboard />
 }

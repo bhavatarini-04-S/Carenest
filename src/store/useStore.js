@@ -7,7 +7,6 @@ const useStore = create((set) => ({
     professions: [],
     mood: null,
     burnoutHistory: [],
-    behaviorTrend: [], // Store recent triage risk scores (0-100)
     language: 'en', // Default to English
 
     setUser: (user) => set({ user }),
@@ -17,7 +16,6 @@ const useStore = create((set) => ({
     setMood: (mood) => set({ mood }),
     setLanguage: (lang) => set({ language: lang }),
     addBurnoutScore: (score) => set((s) => ({ burnoutHistory: [...s.burnoutHistory, score] })),
-    addTrendScore: (score) => set((s) => ({ behaviorTrend: [...s.behaviorTrend.slice(-29), score] })),
 
     toggleProfession: (prof) =>
         set((state) => ({
