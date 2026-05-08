@@ -72,6 +72,16 @@ export default function CalmEnvironment() {
         }
     }
 
+    function createNoiseBuffer(ctx) {
+        const bufferSize = ctx.sampleRate * 2
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+        const data = buffer.getChannelData(0)
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1
+        }
+        return buffer
+    }
+
     function createAmbientSoundNodes(id, ctx) {
         // Stop existing oscillator COMPLETELY
         if (oscillatorsRef.current[id] && Array.isArray(oscillatorsRef.current[id])) {
@@ -100,45 +110,62 @@ export default function CalmEnvironment() {
         const now = ctx.currentTime
 
         if (id === 'ocean') {
-            // Ocean: Layered low-frequency oscillators with modulation
-            for (let i = 0; i < 3; i++) {
-                const osc = ctx.createOscillator()
-                const gain = ctx.createGain()
-                const lfo = ctx.createOscillator()
-                const lfoGain = ctx.createGain()
+            const noiseSource = ctx.createBufferSource()
+            noiseSource.buffer = createNoiseBuffer(ctx)
+            noiseSource.loop = true
 
-                osc.type = 'sine'
-                osc.frequency.value = 50 + i * 15
-                lfo.frequency.value = 0.5 + i * 0.1
-                lfoGain.gain.value = 20
+            const highpass = ctx.createBiquadFilter()
+            highpass.type = 'highpass'
+            highpass.frequency.value = 120
 
-                lfo.connect(lfoGain)
-                lfoGain.connect(osc.frequency)
-                gain.gain.setValueAtTime(0.25, now)
-                osc.connect(gain)
-                gain.connect(masterGain)
+            const lowpass = ctx.createBiquadFilter()
+            lowpass.type = 'lowpass'
+            lowpass.frequency.value = 1200
 
-                osc.start()
-                lfo.start()
-                nodes.push(osc, lfo)
-            }
+            const waveGain = ctx.createGain()
+            waveGain.gain.setValueAtTime(0.18, now)
+
+            const swell = ctx.createOscillator()
+            const swellGain = ctx.createGain()
+            swell.type = 'sine'
+            swell.frequency.value = 0.15
+            swellGain.gain.value = 0.08
+            swell.connect(swellGain)
+            swellGain.connect(waveGain.gain)
+
+            noiseSource.connect(highpass)
+            highpass.connect(lowpass)
+            lowpass.connect(waveGain)
+            waveGain.connect(masterGain)
+
+            noiseSource.start()
+            swell.start()
+            nodes.push(noiseSource, swell, swellGain, highpass, lowpass, waveGain)
             console.log('🌊 Ocean soundscape activated - Volume:', (masterVolume * 100).toFixed(0) + '%')
         } else if (id === 'rain') {
-            // Rain: Multiple pitched oscillators at different frequencies
-            const frequencies = [60, 75, 85, 95, 110, 125]
-            frequencies.forEach((freq, idx) => {
-                const osc = ctx.createOscillator()
-                const gain = ctx.createGain()
+            const noiseSource = ctx.createBufferSource()
+            noiseSource.buffer = createNoiseBuffer(ctx)
+            noiseSource.loop = true
 
-                osc.type = 'triangle'
-                osc.frequency.value = freq
-                gain.gain.setValueAtTime(0.15, now)
+            const highpass = ctx.createBiquadFilter()
+            highpass.type = 'highpass'
+            highpass.frequency.value = 900
 
-                osc.connect(gain)
-                gain.connect(masterGain)
-                osc.start()
-                nodes.push(osc)
-            })
+            const bandpass = ctx.createBiquadFilter()
+            bandpass.type = 'bandpass'
+            bandpass.frequency.value = 2000
+            bandpass.Q.value = 1.2
+
+            const rainGain = ctx.createGain()
+            rainGain.gain.setValueAtTime(0.16, now)
+
+            noiseSource.connect(highpass)
+            highpass.connect(bandpass)
+            bandpass.connect(rainGain)
+            rainGain.connect(masterGain)
+
+            noiseSource.start()
+            nodes.push(noiseSource, highpass, bandpass, rainGain)
             console.log('🌧️ Rain soundscape activated - Volume:', (masterVolume * 100).toFixed(0) + '%')
         } else if (id === 'focus') {
             // Focus Music: Harmonic layers with gentle modulation

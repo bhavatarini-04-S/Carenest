@@ -38,7 +38,10 @@ export default function Chat() {
                     <div style={s.headerName}>CareNest AI</div>
                     <div style={s.headerStatus}><span style={s.statusDot} /> Active and here for you</div>
                 </div>
-                <button style={s.backBtn} onClick={() => navigate('/dashboard')}>← Back to dashboard</button>
+                <button
+                    style={s.backBtn}
+                    onClick={() => navigate(ageCategory === '45+' ? '/dashboard/senior' : '/dashboard')}
+                >← Back to dashboard</button>
             </div>
 
             <div style={s.crisisBanner}>

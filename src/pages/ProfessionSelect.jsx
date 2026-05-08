@@ -19,7 +19,7 @@ const PROFS = [
 
 export default function ProfessionSelect() {
     const navigate = useNavigate()
-    const { professions, toggleProfession } = useStore()
+    const { ageCategory, professions, toggleProfession } = useStore()
 
     return (
         <div style={s.page}>
@@ -53,7 +53,10 @@ export default function ProfessionSelect() {
             </div>
 
             <div style={s.footer}>
-                <button style={s.btn} onClick={() => navigate('/dashboard')}>Enter my CareNest →</button>
+                <button
+                    style={s.btn}
+                    onClick={() => navigate(ageCategory === '45+' ? '/dashboard/senior' : '/dashboard')}
+                >Enter my CareNest →</button>
             </div>
         </div>
     )

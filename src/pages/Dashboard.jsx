@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 import YoungAdultDashboard from './YoungAdultDashboard'
 import ProfessionalDashboard25_35 from './ProfessionalDashboard25_35'
@@ -206,5 +206,6 @@ export default function Dashboard() {
     if (ageCategory === '18-25') return <YoungAdultDashboard />
     if (ageCategory === '25-35') return <ProfessionalDashboard25_35 />
     if (ageCategory === '35-45') return <ProfessionalDashboard35_45 />
+    if (ageCategory === '45+') return <Navigate to="/dashboard/senior" replace />
     return <DefaultDashboard />
 }
