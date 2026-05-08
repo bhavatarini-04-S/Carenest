@@ -1,0 +1,173 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    📊 HOW TO VIEW YOUR DATABASE 📊                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ METHOD 1: Table Editor (Easiest - Visual Interface)                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+STEP 1: Open Supabase Dashboard
+  → Go to: https://supabase.com/dashboard
+  → Click on your "CareNest" project
+
+STEP 2: Click "Table Editor" in Left Sidebar
+  → Look for the 📊 Table Editor icon
+  → Click it
+
+STEP 3: View Your Tables
+  → You'll see a list of tables on the left:
+    • auth.users (built-in Supabase auth table)
+    • user_profiles (your custom table - if migration applied)
+    • user_sessions (your custom table - if migration applied)
+
+STEP 4: Click on a Table to View Data
+  → Click "user_profiles" to see all user profile data
+  → Click "user_sessions" to see login/logout history
+  → You can:
+    ✓ View all rows
+    ✓ Add new rows
+    ✓ Edit existing rows
+    ✓ Delete rows
+    ✓ Filter and search
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ METHOD 2: SQL Editor (For Running Queries)                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+STEP 1: Click "SQL Editor" in Left Sidebar
+  → Look for the </> SQL Editor icon
+
+STEP 2: Write SQL Queries
+  → Example queries:
+
+  -- View all user profiles
+  SELECT * FROM user_profiles;
+
+  -- View all sessions
+  SELECT * FROM user_sessions;
+
+  -- Count total users
+  SELECT COUNT(*) FROM user_profiles;
+
+  -- View recent signups
+  SELECT * FROM user_profiles 
+  ORDER BY created_at DESC 
+  LIMIT 10;
+
+STEP 3: Click "Run" to Execute
+  → Results appear below the query
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ METHOD 3: Database (Schema View)                                            │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+STEP 1: Click "Database" in Left Sidebar
+  → Look for the 🗄️ Database icon
+
+STEP 2: View Database Structure
+  → Tables: See all tables and their structure
+  → Roles: View database roles and permissions
+  → Extensions: See installed PostgreSQL extensions
+  → Replication: Database replication settings
+  → Webhooks: Database webhooks
+  → Functions: Custom database functions
+  → Triggers: Database triggers
+
+STEP 3: Click "Tables" to See Schema
+  → View columns, types, constraints
+  → See relationships between tables
+  → View indexes
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🎯 QUICK ACCESS PATHS 🎯                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+To View User Data:
+  Dashboard → Table Editor → user_profiles → [See all users]
+
+To View Login History:
+  Dashboard → Table Editor → user_sessions → [See all sessions]
+
+To Run SQL Queries:
+  Dashboard → SQL Editor → [Write query] → Run
+
+To See Database Structure:
+  Dashboard → Database → Tables → [View schema]
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    📋 WHAT YOU'LL SEE 📋                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+IF YOU HAVEN'T APPLIED MIGRATIONS YET:
+  ❌ user_profiles - NOT FOUND
+  ❌ user_sessions - NOT FOUND
+  ✅ auth.users - EXISTS (built-in)
+
+AFTER APPLYING MIGRATIONS:
+  ✅ user_profiles - EXISTS (your custom table)
+  ✅ user_sessions - EXISTS (your custom table)
+  ✅ auth.users - EXISTS (built-in)
+
+AFTER USERS SIGN UP:
+  📊 user_profiles will have rows with:
+     - id, email, name, age_group, profession, etc.
+  
+  📊 user_sessions will have rows with:
+     - session_type, user_agent, device_info, timestamps
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    🔍 USEFUL SQL QUERIES 🔍                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Copy these into SQL Editor:
+
+-- Check if your tables exist
+SELECT table_name 
+FROM information_schema.tables 
+WHERE table_schema = 'public';
+
+-- View all user profiles
+SELECT * FROM user_profiles;
+
+-- Count users by age group
+SELECT age_group, COUNT(*) 
+FROM user_profiles 
+GROUP BY age_group;
+
+-- View recent logins
+SELECT * FROM user_sessions 
+WHERE session_type = 'login' 
+ORDER BY created_at DESC 
+LIMIT 10;
+
+-- View anonymous users
+SELECT * FROM user_profiles 
+WHERE is_anonymous = true;
+
+-- View users with their latest session
+SELECT 
+  p.name, 
+  p.email, 
+  p.age_group, 
+  s.session_type, 
+  s.created_at 
+FROM user_profiles p
+LEFT JOIN user_sessions s ON p.id = s.user_id
+ORDER BY s.created_at DESC;
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ⚡ QUICK TIPS ⚡                                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✓ Table Editor is best for viewing and editing data visually
+✓ SQL Editor is best for complex queries and analysis
+✓ Database section is best for viewing schema and structure
+✓ You can export data as CSV from Table Editor
+✓ You can filter, sort, and search in Table Editor
+✓ Real-time updates: refresh to see new data
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 RECOMMENDED: Start with Table Editor - it's the easiest way to see your data!
+
+Path: Dashboard → Table Editor → user_profiles
